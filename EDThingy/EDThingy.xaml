@@ -1,0 +1,27 @@
+﻿<Window x:Class="EDThingy.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EDThingy"
+        mc:Ignorable="d"
+        Title="EDThingy" Height="450" Width="1268.987">
+    <Grid>
+        <Button Content="Read Journals" HorizontalAlignment="Left" Margin="10,23,0,0" VerticalAlignment="Top" Width="106" Click="ReadJournals_Click"/>
+        <ComboBox Name="CommanderNames" HorizontalAlignment="Left" Margin="248,21,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CommanderSelectionChanged"/>
+        <Label Content="Commander" HorizontalAlignment="Left" Margin="161,20,0,0" VerticalAlignment="Top" Width="87"/>
+        <ListView Name="EventsList" HorizontalAlignment="Left" Height="310"  Margin="10,94,0,15" VerticalAlignment="Stretch" Width="1241">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Timestamp" DisplayMemberBinding="{Binding DateTime}"/>
+                    <GridViewColumn Header="Event" DisplayMemberBinding="{Binding EventType}"/>
+                    <GridViewColumn Header="Fields" DisplayMemberBinding="{Binding Fields}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox Name="FilterEventText" HorizontalAlignment="Left" Height="23" Margin="96,66,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Filter Event" HorizontalAlignment="Left" Margin="23,63,0,0" VerticalAlignment="Top"/>
+        <Button Name="FilterEventButton" Content="Go" HorizontalAlignment="Left" Margin="221,67,0,0" VerticalAlignment="Top" Width="75" Click="FilterEventButtonClick"/>
+
+    </Grid>
+</Window>
