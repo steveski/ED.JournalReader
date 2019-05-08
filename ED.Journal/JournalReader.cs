@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,31 +20,37 @@ namespace ED.Journal
             FullRead
         }
 
+        public IEnumerable<Journal> Journals => _journals;
+        private List<Journal> _journals;
+
+
         public JournalReader(JournalReadMode readMode = JournalReadMode.Indexed)
         {
             _readMode = readMode;
 
         }
 
-        public async Task<List<Journal>> ReadJournalsAsync(string path, string filenamePattern)
+        public async Task ReadJournalsAsync(string path, string filenamePattern)
         {
-            var journals = new List<Journal>();
+            _journals = new List<Journal>();
 
             var files = Directory.GetFiles(path, filenamePattern);
             foreach (var file in files)
             {
                 Journal journal = await LoadJournalFile(file);
-                journals.Add(journal);
+                _journals.Add(journal);
             }
 
-            return journals;
         }
 
         public Task<Journal> LoadJournalFile(string file)
         {
             var journal = new Journal();
             // Set the FileDateTime property from the date part of the filename
-
+            // Example: Journal.180224235713.01.log
+            var parts = file.Split('.');
+            journal.FileDateTime = DateTime.ParseExact(parts[1], "yyMMddHHmmss", CultureInfo.InvariantCulture);
+            
             var lines = File.ReadAllLines(file);
             foreach (var line in lines)
             {
@@ -103,5 +110,28 @@ namespace ED.Journal
 
             return Task.FromResult(journal);
         }
+
+        public Task<IEnumerable<string>> CommanderNamesAsync()
+        {
+            IEnumerable<string> commanderNames = null;
+            if (_readMode == JournalReadMode.FullRead)
+            {
+                commanderNames = Journals.Where(x => x.CommanderName != null)
+                    .Select(x => x.CommanderName)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+            }
+            else
+            {
+                // JournalReadMode.Indexed
+                // Fetch Async from files
+
+            }
+
+            return Task.FromResult(commanderNames);
+        }
+
+        
     }
 }

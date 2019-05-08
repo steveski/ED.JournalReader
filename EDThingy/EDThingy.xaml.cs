@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,40 +31,33 @@ namespace EDThingy
 
         }
 
-        private async void ReadJournals_Click(object sender, RoutedEventArgs e)
+        // Trying to go Async - https://www.youtube.com/watch?v=2moh18sh5p4
+
+        private void ReadJournals_Click(object sender, RoutedEventArgs e)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
-            await ReadJournals();
-
-            watch.Stop();
-            //watch.ElapsedMilliseconds;
+            ReadJournalsAsync(); // Not awaiting so that it runs in a background thread
 
         }
 
-        // Trying to go Async - https://www.youtube.com/watch?v=2moh18sh5p4
-        private async Task ReadJournals()
+
+        private async Task ReadJournalsAsync()
         {
             var journalPath = ConfigurationManager.AppSettings["JournalPath"];
             var filenamePattern = ConfigurationManager.AppSettings["FilenamePattern"];
-            var reader = new JournalReader();
-            var journals = await reader.ReadJournalsAsync(journalPath, filenamePattern);
-            if (journals.Any())
+            var reader = new JournalReader(JournalReader.JournalReadMode.FullRead);
+            await reader.ReadJournalsAsync(journalPath, filenamePattern);
+            if (reader.Journals.Any())
             {
                 CommanderNames.ItemsSource = null;
                 CommanderNames.SelectedIndex = -1;
                 EventsList.ItemsSource = null;
                 commanderJournals.Clear();
 
-                var cmdrNames = journals
-                    .Where(x => x.CommanderName != null)
-                    .Select(x => x.CommanderName)
-                    .Distinct()
-                    .OrderBy(x => x)
-                    .ToList();
+                var cmdrNames = await reader.CommanderNamesAsync();
+
                 foreach (var commander in cmdrNames)
                 {
-                    var cmdrJournals = journals.Where(x => x.CommanderName == commander).ToList();
+                    var cmdrJournals = reader.Journals.Where(x => x.CommanderName == commander).ToList();
                     if (cmdrJournals.Any())
                     {
                         commanderJournals.Add(commander, cmdrJournals);
