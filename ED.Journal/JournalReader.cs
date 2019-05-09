@@ -30,20 +30,21 @@ namespace ED.Journal
 
         }
 
-        public async Task ReadJournalsAsync(string path, string filenamePattern)
+        public Task ReadJournalsAsync(string path, string filenamePattern)
         {
             _journals = new List<Journal>();
 
             var files = Directory.GetFiles(path, filenamePattern);
             foreach (var file in files)
             {
-                Journal journal = await LoadJournalFile(file);
+                Journal journal = LoadJournalFile(file);
                 _journals.Add(journal);
             }
 
+            return Task.FromResult<object>(null);
         }
 
-        public Task<Journal> LoadJournalFile(string file)
+        public Journal LoadJournalFile(string file)
         {
             var journal = new Journal();
             // Set the FileDateTime property from the date part of the filename
@@ -108,7 +109,7 @@ namespace ED.Journal
 
             }
 
-            return Task.FromResult(journal);
+            return journal;
         }
 
         public Task<IEnumerable<string>> CommanderNamesAsync()
